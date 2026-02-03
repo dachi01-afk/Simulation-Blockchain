@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Network Nodes</h1>
+
+<form id="nodeForm" class="form-card">
+    <input type="text" id="nodeAddress" placeholder="http://127.0.0.1:5001">
+    <button type="submit">Add Node</button>
+</form>
+
+<ul id="nodeList"></ul>
+
+{% endblock %}

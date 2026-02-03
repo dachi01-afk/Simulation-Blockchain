@@ -1,0 +1,83 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: #f1f5f9;
+}
+
+.navbar {
+    background: #1e293b;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+.navbar a {
+    color: #38bdf8;
+    text-decoration: none;
+}
+
+.container {
+    padding: 40px;
+}
+
+.card-grid {
+    display: flex;
+    gap: 20px;
+}
+
+.card {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 10px;
+    flex: 1;
+    text-align: center;
+}
+
+.form-card {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 300px;
+}
+
+input {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+}
+
+button {
+    padding: 10px;
+    background: #38bdf8;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0ea5e9;
+}
+
+.mine-btn {
+    font-size: 18px;
+}
+
+.tx-box {
+    background: #0f172a;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-left: 3px solid #38bdf8;
+    border-radius: 5px;
+}
+

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Dashboard</h1>
+
+<div class="card-grid">
+    <div class="card">
+        <h2>Total Blocks</h2>
+        <p id="totalBlocks">Loading...</p>
+    </div>
+
+    <div class="card">
+        <h2>Pending Transactions</h2>
+        <p id="pendingTx">Loading...</p>
+    </div>
+
+    <div class="card">
+        <h2>Chain Status</h2>
+        <p id="chainStatus">Checking...</p>
+    </div>
+</div>
+{% endblock %}

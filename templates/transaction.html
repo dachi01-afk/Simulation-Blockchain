@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Create Transaction</h1>
+
+<form id="txForm" class="form-card">
+    <input type="text" id="sender" placeholder="Sender" required>
+    <input type="text" id="receiver" placeholder="Receiver" required>
+    <input type="number" id="amount" placeholder="Amount" required>
+    <button type="submit">Submit Transaction</button>
+</form>
+
+<p id="txMessage"></p>
+
+{% endblock %}
