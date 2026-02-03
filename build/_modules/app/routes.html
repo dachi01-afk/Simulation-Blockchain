@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>app.routes &#8212; Simulation Blockchain Network 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for app.routes</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">flask</span><span class="w"> </span><span class="kn">import</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">render_template</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.blockchain.blockchain</span><span class="w"> </span><span class="kn">import</span> <span class="n">Blockchain</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.blockchain.block</span><span class="w"> </span><span class="kn">import</span> <span class="n">Block</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.blockchain.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">serialize_block</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
+
+
+
+<div class="viewcode-block" id="register_routes">
+<a class="viewcode-back" href="../../app.html#app.routes.register_routes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">register_routes</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">blockchain</span><span class="p">):</span>
+
+    <span class="c1"># ======== PAGE ROUTES ========</span>
+
+    <span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dashboard</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s2">&quot;dashboard.html&quot;</span><span class="p">)</span>
+
+    <span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/chain-page&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">chain_page</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s2">&quot;chain.html&quot;</span><span class="p">)</span>
+
+    <span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/transaction-page&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">transaction_page</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s2">&quot;transaction.html&quot;</span><span class="p">)</span>
+
+    <span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/mine-page&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mine_page</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s2">&quot;mine.html&quot;</span><span class="p">)</span>
+
+    <span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/nodes&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">node_page</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s2">&quot;nodes.html&quot;</span><span class="p">)</span>
+
+    <span class="c1"># ======== API ROUTES ========</span>
+
+    <span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/api/chain&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_chain</span><span class="p">():</span>
+        <span class="n">chain_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">serialize_block</span><span class="p">(</span><span class="n">block</span><span class="p">)</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">blockchain</span><span class="o">.</span><span class="n">chain</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">chain_data</span><span class="p">)</span>
+
+    <span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/api/transactions&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_transaction</span><span class="p">():</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span>
+        <span class="n">blockchain</span><span class="o">.</span><span class="n">add_transaction</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Transaction added&quot;</span><span class="p">}),</span> <span class="mi">201</span>
+
+    <span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/api/mine&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mine</span><span class="p">():</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="n">blockchain</span><span class="o">.</span><span class="n">mine_block</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">block</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;No transactions to mine&quot;</span><span class="p">}),</span> <span class="mi">400</span>
+
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">serialize_block</span><span class="p">(</span><span class="n">block</span><span class="p">))</span>
+
+    <span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/api/validate&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;is_valid&quot;</span><span class="p">:</span> <span class="n">blockchain</span><span class="o">.</span><span class="n">is_chain_valid</span><span class="p">()})</span>
+
+    <span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/api/register-node&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register_node</span><span class="p">():</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span>
+        <span class="n">address</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;address&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">address</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid address&quot;</span><span class="p">}),</span> <span class="mi">400</span>
+        
+        <span class="c1"># jangan register diri sendiri</span>
+        <span class="k">if</span> <span class="n">address</span> <span class="o">==</span> <span class="n">blockchain</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">address</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+                <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Cannot register itself&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">blockchain</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+            <span class="p">}),</span> <span class="mi">200</span>
+
+        <span class="c1"># hanya tambah kalau belum ada</span>
+        <span class="k">if</span> <span class="n">address</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">blockchain</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+            <span class="n">blockchain</span><span class="o">.</span><span class="n">register_node</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;New node registered :&quot;</span><span class="p">,</span> <span class="n">address</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Current peers :&quot;</span><span class="p">,</span> <span class="n">blockchain</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+
+             <span class="c1"># 🔥 Kirim semua peer yang sudah ada ke node baru</span>
+            <span class="k">for</span> <span class="n">peer</span> <span class="ow">in</span> <span class="n">blockchain</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">peer</span> <span class="o">!=</span> <span class="n">address</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">/api/register-node&quot;</span><span class="p">,</span>
+                            <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;address&quot;</span><span class="p">:</span> <span class="n">peer</span><span class="p">}</span>
+                        <span class="p">)</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="k">pass</span>
+
+
+            <span class="c1"># sebarkan node baru ke semua peer lain</span>
+            <span class="k">for</span> <span class="n">peer</span> <span class="ow">in</span> <span class="n">blockchain</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">peer</span> <span class="o">!=</span> <span class="n">address</span><span class="p">:</span>
+                    <span class="c1"># kirim balik agar dua arah (tanpa loop)</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">/api/register-node&quot;</span><span class="p">,</span>
+                            <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;address&quot;</span><span class="p">:</span> <span class="n">address</span><span class="p">}</span>
+                        <span class="p">)</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="k">pass</span>
+
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Node registered successfully&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">blockchain</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="p">}),</span> <span class="mi">200</span>
+
+    <span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/api/receive-block&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">receive_block</span><span class="p">():</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span>
+
+        <span class="n">last_block</span> <span class="o">=</span> <span class="n">blockchain</span><span class="o">.</span><span class="n">get_last_block</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;previous_hash&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">last_block</span><span class="o">.</span><span class="n">hash</span><span class="p">:</span>
+            <span class="n">replaced</span> <span class="o">=</span> <span class="n">blockchain</span><span class="o">.</span><span class="n">replace_chain</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">replaced</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Chain replaced&quot;</span><span class="p">}),</span> <span class="mi">200</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid previous hash&quot;</span><span class="p">}),</span> <span class="mi">400</span>
+
+
+        <span class="n">new_block</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">],</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;transactions&quot;</span><span class="p">],</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;timestamp&quot;</span><span class="p">],</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;previous_hash&quot;</span><span class="p">],</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;nonce&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">last_block</span><span class="o">.</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid index&quot;</span><span class="p">}),</span> <span class="mi">400</span>
+
+        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;previous_hash&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">last_block</span><span class="o">.</span><span class="n">hash</span><span class="p">:</span>
+            <span class="n">replaced</span> <span class="o">=</span> <span class="n">blockchain</span><span class="o">.</span><span class="n">replace_chain</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">replaced</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Chain replaced&quot;</span><span class="p">}),</span> <span class="mi">200</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid previous hash&quot;</span><span class="p">}),</span> <span class="mi">400</span>
+
+        <span class="k">if</span> <span class="n">new_block</span><span class="o">.</span><span class="n">calculate_hash</span><span class="p">()</span> <span class="o">!=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;hash&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid hash&quot;</span><span class="p">}),</span> <span class="mi">400</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;hash&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;0&#39;</span> <span class="o">*</span> <span class="n">Config</span><span class="o">.</span><span class="n">DIFFICULTY</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid proof of work&quot;</span><span class="p">}),</span> <span class="mi">400</span>
+
+        <span class="n">new_block</span><span class="o">.</span><span class="n">hash</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;hash&quot;</span><span class="p">]</span>
+
+        <span class="n">blockchain</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_block</span><span class="p">)</span>
+
+        <span class="n">blockchain</span><span class="o">.</span><span class="n">replace_chain</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Block accepted&quot;</span><span class="p">}),</span> <span class="mi">201</span></div>
+
+
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Simulation Blockchain Network</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../app.html">app package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, Jimy dc.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
