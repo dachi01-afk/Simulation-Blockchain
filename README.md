@@ -1,6 +1,8 @@
 # Dokumentasi — Simulation-Blockchain
-
+<!-- portfolio:desc -->
 Sebuah simulasi jaringan blockchain terdistribusi sederhana dibangun dengan Python & Flask. Dokumentasi ini menjelaskan arsitektur, API, cara menjalankan, konfigurasi, serta panduan kontribusi dan pengembangan.
+
+<!-- portfolio:desc:end -->
 
 ---
 
