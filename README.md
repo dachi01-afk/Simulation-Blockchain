@@ -1,239 +1,174 @@
-# Dokumentasi — Simulation-Blockchain
+# PyChain-Sim 🔗
 <!-- portfolio:desc -->
-Sebuah simulasi jaringan blockchain terdistribusi sederhana dibangun dengan Python & Flask. Dokumentasi ini menjelaskan arsitektur, API, cara menjalankan, konfigurasi, serta panduan kontribusi dan pengembangan.
+**PyChain-Sim** is a lightweight, distributed blockchain network simulation built with **Python** and **Flask**. It demonstrates the fundamental concepts of blockchain technology, including Proof-of-Work (PoW), peer-to-peer networking, and consensus algorithms.
 <!-- portfolio:desc:end -->
+---
+
+## 📌 Overview
+
+This project serves as an educational implementation of a decentralized ledger. It allows users to spin up multiple nodes, simulate transactions, mine blocks, and visualize the propagation of data across the network via a web interface.
+
+### Key Features
+* **Block Structure:** Implements standard block attributes (Index, Timestamp, Transactions, Previous Hash, Nonce).
+* **Proof-of-Work (PoW):** A mining algorithm with adjustable difficulty settings.
+* **P2P Networking:** Nodes can register with each other and broadcast new blocks.
+* **Consensus Algorithm:** Implements the "Longest Chain Rule" to resolve conflicts and synchronize nodes.
+* **Web Dashboard:** A simple UI to view the chain, manage transactions, and monitor nodes.
 
 ---
 
-## Ringkasan singkat
-- Nama repo: `dachi01-afk/Simulation-Blockchain`  
-- Deskripsi: Simple distributed blockchain network using Python & Flask  
-- Bahasa utama: Python (inti aplikasi). Frontend menggunakan JavaScript / HTML / CSS.
+## 📂 Project Structure
 
-Aplikasi ini mengimplementasikan:
-- Model Block sederhana (index, transactions, timestamp, previous_hash, nonce, hash).
-- Proof-of-Work (PoW) untuk menambang blok.
-- Antrian transaksi (pending transactions).
-- Mekanisme jaringan dasar: pendaftaran node (register), broadcast blok, dan konsensus berdasarkan chain terpanjang (replace_chain).
-- Halaman web sederhana (templates/static) untuk visualisasi dan operasi manual.
+* `run.py`: Entry point for the application. Accepts a port number as an argument.
+* `config.py`: Global configuration (Mining Difficulty, Bootstrap Nodes).
+* `app/`: Core application logic.
+    * `routes.py`: API endpoints and web views.
+    * `blockchain/`: Logic for the blockchain, blocks, and consensus.
+    * `network/`: Logic for node registration and broadcasting.
+* `templates/` & `static/`: Frontend assets for the web dashboard.
 
 ---
 
-## Struktur proyek (ringkasan)
-- `run.py` — Entrypoint; jalankan Flask app, menerima argumen port (contoh: `python run.py 5001`).
-- `config.py` — Konfigurasi global (mis. `DIFFICULTY`, `BOOTSTRAP_NODES`). Lihat [config.py](https://github.com/dachi01-afk/Simulation-Blockchain/blob/main/config.py).
-- `requirements.txt` — Dependensi Python.
-- `LICENSE` — Lisensi MIT.
+## 🚀 Installation & Setup
 
-- `app/`
-  - `__init__.py`
-  - `routes.py` — Semua route API & halaman web (lihat: [app/routes.py](https://github.com/dachi01-afk/Simulation-Blockchain/blob/main/app/routes.py)).
-  - `blockchain/`
-    - `blockchain.py` — Logika blockchain: chain, pending_transactions, mining, jaringan dan konsensus (replace_chain).
-    - `block.py` — Model Block dan `calculate_hash()`.
-    - `consensus.py` — ProofOfWork sederhana.
-    - `utils.py` — Fungsi utilitas (`serialize_block`).
-  - `network/`
-    - `node.py` — Logika pendaftaran node, broadcast, dsb.
-- `templates/` dan `static/` — Frontend (dashboard, halaman chain/transactions/mine/nodes).
+### Prerequisites
+* Python 3.8+
+* pip (Python Package Manager)
 
----
+### Steps
 
-## Konfigurasi penting
-- DIFFICULTY (integer) — tingkat kesulitan PoW; semakin besar nilai, semakin lama proses mining.
-- BOOTSTRAP_NODES (list) — daftar alamat node bootstrap yang akan dihubungi saat node mulai untuk menemukan peers.
+1.  **Clone the Repository**
+    ```bash
+    git clone [https://github.com/dachi01-afk/Simulation-Blockchain.git](https://github.com/dachi01-afk/Simulation-Blockchain.git)
+    cd Simulation-Blockchain
+    ```
 
-Periksa `config.py` untuk menyesuaikan nilai: [config.py](https://github.com/dachi01-afk/Simulation-Blockchain/blob/main/config.py)
+2.  **Create a Virtual Environment (Optional but Recommended)**
+    ```bash
+    python -m venv venv
+    
+    # Windows
+    venv\Scripts\activate
+    
+    # Linux / macOS
+    source venv/bin/activate
+    ```
 
----
+3.  **Install Dependencies**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-## Instalasi & menjalankan
-Prasyarat:
-- Python 3.8+
-- pip
-- (opsional) virtual environment
-
-Langkah:
-1. Clone repo:
-   ```bash
-   git clone https://github.com/dachi01-afk/Simulation-Blockchain.git
-   cd Simulation-Blockchain
-   ```
-
-2. (Opsional) Buat virtualenv dan aktifkan:
-   ```bash
-   python -m venv venv
-   # Linux / macOS
-   source venv/bin/activate
-   # Windows (PowerShell)
-   venv\Scripts\Activate.ps1
-   # Windows (cmd)
-   venv\Scripts\activate
-   ```
-
-3. Install dependensi:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Menjalankan node:
-   - Node default pada port 5000:
-     ```bash
-     python run.py 5000
-     ```
-   - Menjalankan node lain pada port 5001, 5002, dll:
-     ```bash
-     python run.py 5001
-     python run.py 5002
-     ```
-
-Setiap node akan mencoba mendaftar ke `BOOTSTRAP_NODES` (lihat `config.py`) dan melakukan sinkronisasi chain secara otomatis.
+4.  **Run the Node**
+    You can run multiple nodes on different terminals/ports to simulate a network.
+    
+    * **Node 1 (Port 5000):**
+        ```bash
+        python run.py 5000
+        ```
+    * **Node 2 (Port 5001):**
+        ```bash
+        python run.py 5001
+        ```
 
 ---
 
-## API — Endpoint utama
-Implementasi endpoint ada di `app/routes.py` — lihat file untuk detail: [app/routes.py](https://github.com/dachi01-afk/Simulation-Blockchain/blob/main/app/routes.py)
+## 🔌 API Documentation
 
-Ringkasan endpoint:
+The application exposes several RESTful endpoints for interacting with the blockchain.
 
-- GET /api/chain  
-  Ambil seluruh chain lokal (array blok ter-serialize).  
-  Contoh:
-  ```bash
-  curl "http://localhost:5000/api/chain"
-  ```
+### 1. Get Chain
+Retrieves the full blockchain data from the local node.
+* **URL:** `/api/chain`
+* **Method:** `GET`
 
-- POST /api/transactions  
-  Tambah transaksi ke antrian pending. Body: JSON transaksi (contoh umum):
-  ```json
-  { "sender": "Alice", "recipient": "Bob", "amount": 10 }
-  ```
-  Contoh:
-  ```bash
-  curl -X POST "http://localhost:5000/api/transactions" \
-    -H "Content-Type: application/json" \
-    -d '{"sender":"Alice","recipient":"Bob","amount":10}'
-  ```
+### 2. Create Transaction
+Adds a new transaction to the pending pool.
+* **URL:** `/api/transactions`
+* **Method:** `POST`
+* **Payload:**
+    ```json
+    {
+        "sender": "Alice",
+        "recipient": "Bob",
+        "amount": 10
+    }
+    ```
 
-- GET /api/mine  
-  Memicu proses mining (membuat blok dari pending transactions). Jika tidak ada transaksi, akan mengembalikan pesan error.
-  ```bash
-  curl -X GET "http://localhost:5000/api/mine"
-  ```
+### 3. Mine Block
+Triggers the mining process to pack pending transactions into a new block.
+* **URL:** `/api/mine`
+* **Method:** `GET`
 
-- GET /api/validate  
-  Mengecek apakah chain lokal valid menurut `is_chain_valid()`.
-  ```bash
-  curl "http://localhost:5000/api/validate"
-  ```
+### 4. Register Node
+Registers a new peer node to the network.
+* **URL:** `/api/register-node`
+* **Method:** `POST`
+* **Payload:**
+    ```json
+    {
+        "address": "http://localhost:5001"
+    }
+    ```
 
-- POST /api/register-node  
-  Mendaftarkan node baru. Body:
-  ```json
-  { "address": "http://localhost:5001" }
-  ```
-  Contoh:
-  ```bash
-  curl -X POST "http://localhost:5000/api/register-node" \
-    -H "Content-Type: application/json" \
-    -d '{"address":"http://localhost:5001"}'
-  ```
-
-  Catatan:
-  - Node tidak akan mendaftarkan dirinya sendiri.
-  - Saat menerima node baru, server mengirim daftar peers yang sudah ada ke node baru agar terhubung dua arah.
-  - Node akan menyebarkan node baru ke peers lainnya.
-
-- POST /api/receive-block  
-  Endpoint untuk menerima blok yang di-broadcast oleh peer. Jika `previous_hash` tidak cocok, node akan memanggil `replace_chain()` untuk sinkronisasi.
+### 5. Consensus / Validation
+Checks if the local chain is valid according to the cryptographic rules.
+* **URL:** `/api/validate`
+* **Method:** `GET`
 
 ---
 
-## Halaman Web (UI)
-Route halaman:
-- GET / — Dashboard
-- GET /chain-page — Tampilan chain
-- GET /transaction-page — Tambah transaksi
-- GET /mine-page — Halaman mining
-- GET /nodes — Kelola nodes
+## 🌐 Web Interface
 
-Folder `templates/` dan `static/` berisi asset & halaman yang digunakan.
+You can interact with the blockchain visually by visiting the dashboard in your browser:
 
----
-
-## Alur contoh menjalankan beberapa node (praktis)
-1. Terminal A:
-   ```bash
-   python run.py 5000
-   ```
-2. Terminal B:
-   ```bash
-   python run.py 5001
-   ```
-3. Daftarkan node B ke A:
-   ```bash
-   curl -X POST "http://localhost:5000/api/register-node" \
-     -H "Content-Type: application/json" \
-     -d '{"address":"http://localhost:5001"}'
-   ```
-4. Tambah transaksi di salah satu node, lalu panggil `/api/mine`. Node yang menambang akan men-broadcast blok baru; peers akan memeriksa dan melakukan `replace_chain()` jika diperlukan.
+* **Dashboard:** `http://localhost:5000/`
+* **View Chain:** `http://localhost:5000/chain-page`
+* **Mining Interface:** `http://localhost:5000/mine-page`
+* **Network Manager:** `http://localhost:5000/nodes`
 
 ---
 
-## Desain & implementasi singkat (teknis)
-- Block:
-  - `app/blockchain/block.py` — Block memiliki fields: `index`, `transactions`, `timestamp`, `previous_hash`, `nonce`, `hash`.
-  - `calculate_hash()` menggunakan SHA-256 dari JSON terurut dari field block.
+## ⚡ Simulation Scenario: Multi-Node Network
 
-- ProofOfWork:
-  - `app/blockchain/consensus.py` — Loop increment `nonce` sampai `hash` memenuhi kondisi prefix `'0' * DIFFICULTY`.
+To see the distributed nature in action, follow these steps:
 
-- Blockchain core:
-  - `app/blockchain/blockchain.py` — Mengelola chain, pending transactions, mining, broadcast, pendaftaran node, dan konsensus via `replace_chain()`.
-
-- Networking:
-  - `app/network/node.py` — Pengelolaan daftar nodes (peers), broadcasting blok/registrasi.
-  - Node mencoba auto-register ke `BOOTSTRAP_NODES` dan menerima peer list dari bootstrap.
-
-- Persistensi:
-  - Saat ini, penyimpanan chain bersifat in-memory. Ada placeholder `save_chain_to_db()` untuk pengembangan persistensi.
+1.  **Start Node A** on port 5000: `python run.py 5000`
+2.  **Start Node B** on port 5001: `python run.py 5001`
+3.  **Register Node B to Node A:**
+    ```bash
+    curl -X POST "http://localhost:5000/api/register-node" \
+         -H "Content-Type: application/json" \
+         -d '{"address":"http://localhost:5001"}'
+    ```
+    *(Node A will share its peer list with Node B automatically)*.
+4.  **Mine on Node A:** Visit `http://localhost:5000/mine-page` and click "Mine".
+5.  **Check Node B:** Visit `http://localhost:5001/chain-page`. You will see that Node B has automatically synchronized and received the block mined by Node A.
 
 ---
 
-## Troubleshooting singkat
-- Jika node gagal terhubung ke bootstrap, periksa alamat/port di `BOOTSTRAP_NODES` dan pastikan node bootstrap berjalan.
-- Jika mining terlalu lama, kurangi `DIFFICULTY` di `config.py` untuk pengujian.
-- Pastikan port yang dipakai tidak diblokir oleh firewall.
+## ⚙️ Configuration
+
+You can adjust the network settings in `config.py`:
+* `DIFFICULTY`: Integer. Higher values increase mining time.
+* `BOOTSTRAP_NODES`: List of initial nodes to connect to upon startup.
 
 ---
 
-## Area yang bisa ditingkatkan / ide kontribusi
-- Validasi payload API dan signature transaksi untuk keamanan.
-- Penyimpanan chain ke database (persistensi).
-- Unit tests & CI untuk integrasi/end-to-end.
-- Logging & error handling yang lebih baik pada komunikasi antar-node.
-- UI interaktif untuk manajemen multi-node.
-- Optimisasi mekanisme broadcast (mis. message queue).
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+1.  Fork the repository.
+2.  Create a feature branch (`git checkout -b feature/AmazingFeature`).
+3.  Commit your changes.
+4.  Push to the branch.
+5.  Open a Pull Request.
 
 ---
 
-## Panduan kontribusi singkat
-1. Fork repo.
-2. Buat branch fitur: `git checkout -b feature/your-feature`
-3. Implementasi & tambahkan test bila relevan.
-4. Commit & push: `git commit -m "Deskripsi perubahan"` lalu `git push origin feature/your-feature`
-5. Buka Pull Request dengan deskripsi perubahan dan alasan.
+## 📄 License
 
-Sertakan test dan dokumentasi untuk perubahan fungsional yang signifikan.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
-
-## Lisensi
-Project dilisensikan di bawah MIT License. Lihat file `LICENSE` di root repository: [LICENSE](https://github.com/dachi01-afk/Simulation-Blockchain/blob/main/LICENSE).
-
----
-
-Jika Anda mau, saya dapat:
-- Menambahkan README.md ringkas yang merujuk ke dokumentasi ini.
-- Menyediakan contoh skrip Python yang menggunakan `requests` untuk berinteraksi dengan API (contoh multi-node bootstrap + mining).
-- Membuat checklist issue untuk perbaikan (tests, persistensi, security).
+**Developed by [Dachi](https://github.com/dachi01-afk)**
